@@ -67,7 +67,7 @@ Very dirty, raw sound.  Classic East Bay.
 I saw them play their last show.  Amazing.  This showed me the place non-standard
 instruments had in punk.
 
-
+-
 **Honorable Mentions** - since the second I started doing this list I had more than 10:
 
 -
