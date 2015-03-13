@@ -34,6 +34,12 @@ var PunkRockAcademy = function()
      */
     require( './lib/lib' )( PunkRockAcademy );
 
+    this.library = {
+        albums :    []
+    };
+
+
+
     var self    = this;
 
     /**
@@ -43,36 +49,7 @@ var PunkRockAcademy = function()
     {
         if ( request.method === 'POST' )
         {
-            var body = '';
-
-            request.on( 'data', function( data )
-            {
-                body += data;
-            } );
-
-            request.on( 'end', function()
-            {
-                body = JSON.parse( body );
-
-                response.writeHead(
-                    "200",
-                    "OK",
-                    {
-                        "access-control-allow-origin": request.headers.origin || '*',
-                        "content-type": "application/json",
-                        "content-length": body.length
-                    }
-                );
-
-                response.write( 'the goggles do nothing!!!!!!' );
-
-                response.end( 'success' );
-            } );
-
-            request.on( 'error', function( e )
-            {
-                console.log( 'problem with request: ' + e.message );
-            } );
+            self.handlePost( self, request, response );
         }
         else if ( request.method === 'GET' )
         {
@@ -89,9 +66,10 @@ var PunkRockAcademy = function()
 /**
  * builds the full filename
  *
- * @param  {[type]} filename [description]
- * @param  {[type]} _import  [description]
- * @return {[type]}          [description]
+ * @param  {str}                    filename            unmodified filename
+ * @param  {bool}                   _import             whether or not this is an import
+ * 
+ * @return {str}                                        standardized filename
  */
 PunkRockAcademy.prototype.buildFilename = function( filename, _import )
 {
@@ -105,6 +83,25 @@ PunkRockAcademy.prototype.buildFilename = function( filename, _import )
     }
 
     return filename;
+};
+
+
+/**
+ * deletes a file
+ * 
+ * @param  {str}                    file                file to remove
+ * 
+ * @return {void}
+ */
+PunkRockAcademy.prototype.deleteFile = function( file )
+{
+    this.fs.unlink( file, function( err ) 
+    {
+        if ( err )
+        {
+            console.log( err );
+        };
+    });
 };
 
 
@@ -133,13 +130,51 @@ PunkRockAcademy.prototype.handleGet = function( self, request, response )
         data = { albums:{} };
     }
 
-    // self.loadData( 'library', function( data, filename )
+    self.outputData( response, data );
+};
+
+
+/**
+ * sorts out POST requests
+ *
+ * @param  {obj}                    self                this
+ * @param  {obj}                    request             HTTP request
+ * @param  {obj}                    response            HTTP response
+ *
+ * @return {void}
+ */
+PunkRockAcademy.prototype.handlePost = function( self, request, response )
+{
+    // var body = '';
+
+    // request.on( 'data', function( data )
     // {
-        self.outputData( response, data );
+    //     body += data;
     // } );
 
+    // request.on( 'end', function()
+    // {
+    //     body = JSON.parse( body );
 
-    // self.saveData( data, 'save-test' );
+    //     response.writeHead(
+    //         "200",
+    //         "OK",
+    //         {
+    //             "access-control-allow-origin": request.headers.origin || '*',
+    //             "content-type": "application/json",
+    //             "content-length": body.length
+    //         }
+    //     );
+
+    //     response.write( 'the goggles do nothing!!!!!!' );
+
+    //     response.end( 'success' );
+    // } );
+
+    // request.on( 'error', function( e )
+    // {
+    //     console.log( 'problem with request: ' + e.message );
+    // } );
 };
 
 
@@ -165,32 +200,36 @@ PunkRockAcademy.prototype.ini = function()
  *
  * @return {void}
  */
-PunkRockAcademy.prototype._importJSON = function()
+PunkRockAcademy.prototype._importJSON = function( library )
 {
-    var self = this;
+    var self        = this;
+    this.library    = library;
 
     this.fs.readdir( this.config.importDir, function( err, files )
     {
-        if ( files.length )
+        var file, ext, fileShort, _files = {};
+        for ( var i = 0, lenI = files.length; i < lenI; i++ )
         {
-            var file, ext;
-            for ( var i = 0, lenI = files.length; i < lenI; i++ )
-            {
-                file    = files[ i ];
-                ext     = file.split( '.' );
-                ext     = ext[ ext.length - 1 ];
+            file = files[ i ];
 
-                if ( ext === 'json' )
+            ext     = file.split( '.' );
+            ext     = ext[ ext.length - 1 ];
+
+            if ( ext === 'json' )
+            {
+                self.loadData( file, function( data, _file )
                 {
-                    console.log( 'load file ' + file );
-                    // self.loadData( file, function( data )
-                    // {
-                        // console.log( data );
-                        console.log( 'sort ' + file + ' into library' );
-                        console.log( 'save ' + file + ' to .imported' );
-                        console.log( 'remove ' + file + ' from import' );
-                    // }, false );
-                }
+                    for ( var f = 0; f < data.albums.length; f++ ) 
+                    {
+                        library.albums.push( data.albums[ f ] );
+                    }
+
+                    fileShort   = _file.split( '/' )[ 1 ];
+                    self.saveData( data, fileShort, true );
+                    self.library = library;
+                    self.saveLibrary( library );
+                    self.deleteFile( _file );
+                }, true );
             }
         }
     } );
@@ -235,15 +274,34 @@ PunkRockAcademy.prototype.kill = function( timeout )
  *
  * @return {void}
  */
- PunkRockAcademy.prototype.loadData = function( filename, _callback, _import )
+PunkRockAcademy.prototype.loadData = function( filename, _callback, _import )
 {
     filename = this.buildFilename( filename, _import );
+    var self = this;
 
     this.fs.readFile( filename, 'utf8', function( err, data )
     {
         if ( !data || err )
         {
-            console.log( err );
+            var fileExample = filename.split( '.' );
+            fileExample.splice( fileExample.length - 1, 0, 'example' );
+            fileExample = fileExample.join( '.' );
+
+            self.fs.readFile( fileExample, 'utf8', function( err, data )
+            {
+                if ( !data || err )
+                {
+                    console.log( 'Error: ENOENT, open "' + filename + '" (additional failure to get an example file)' );
+                }
+                else
+                {
+                    self.saveData( data, filename.split( '/' )[ 2 ] )
+
+                    data = JSON.parse( data );
+
+                    _callback( data, filename );
+                }
+            } );
         }
         else
         {
@@ -288,14 +346,22 @@ PunkRockAcademy.prototype.kill = function( timeout )
  *
  * @return {void}
  */
- PunkRockAcademy.prototype.saveData = function( jsonData, filename )
+ PunkRockAcademy.prototype.saveData = function( jsonData, filename, _import )
 {
     if ( typeof jsonData !== 'string' )
     {
         jsonData = JSON.stringify( jsonData );
     }
 
-    filename = this.buildFilename( filename, false );
+    filename = this.buildFilename( filename, _import );
+
+    if ( _import )
+    {
+        filename = filename.split( '/' );
+
+        filename.splice( 1, 0, '.imported' );
+        filename = filename.join( '/' );
+    }
 
     this.fs.writeFile( filename, jsonData, function( err )
     {
@@ -304,6 +370,26 @@ PunkRockAcademy.prototype.kill = function( timeout )
             return console.log( err );
         }
     });
+};
+
+
+/**
+ * backs up and then saves the library
+ * 
+ * @param  {obj}                    newData             data to be saved
+ * 
+ * @return {void}
+ */
+PunkRockAcademy.prototype.saveLibrary = function( newData )
+{
+    var self    = this;
+    newData     = JSON.stringify( newData );
+
+    this.loadData( 'library.json', function( data, _file )
+    {
+        self.saveData( data, 'library.bak' );
+        self.saveData( newData, 'library' );
+    }, false );
 };
 
 
