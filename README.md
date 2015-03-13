@@ -55,4 +55,4 @@ node server.js
 }
 ```
 
-then just drop it in to the import folder and run the server
+then just drop it in to the import folder before you run the server
