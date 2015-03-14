@@ -38,7 +38,8 @@ var PunkRockAcademy = function()
         albums :    []
     };
 
-
+    this.band   = {};
+    this.album  = {};
 
     var self    = this;
 
@@ -119,15 +120,15 @@ PunkRockAcademy.prototype.handleGet = function( self, request, response )
     var variables   = self.url.parse( request.url, true ).query;
     var pathname    = self.url.parse( request.url ).pathname;
 
-    var data = { success : 'you\'ve connected, but didn\'t ask for anything' };
+    var data = this.library;
 
-    if ( variables.artist )
+    if ( variables.band )
     {
-        data = { artists:{} };
+        data = this.band;
     }
     else if ( variables.album )
     {
-        data = { albums:{} };
+        data = this.album;
     }
 
     self.outputData( response, data );
@@ -185,6 +186,7 @@ PunkRockAcademy.prototype.handlePost = function( self, request, response )
  */
 PunkRockAcademy.prototype.ini = function()
 {
+    this.lib();
     var port = this.config.serverPort;
 
     this.server.listen( port );
@@ -204,6 +206,7 @@ PunkRockAcademy.prototype._importJSON = function( library )
 {
     var self        = this;
     this.library    = library;
+    this.lib.sortLibrary( this, library );
 
     this.fs.readdir( this.config.importDir, function( err, files )
     {
@@ -222,6 +225,8 @@ PunkRockAcademy.prototype._importJSON = function( library )
                     for ( var f = 0; f < data.albums.length; f++ ) 
                     {
                         library.albums.push( data.albums[ f ] );
+                        self.lib.sortAlbum( data.albums[ f ] );
+                        self.lib.sortBand( data.albums[ f ] );
                     }
 
                     fileShort   = _file.split( '/' )[ 1 ];
