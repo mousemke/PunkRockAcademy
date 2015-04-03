@@ -1,0 +1,141 @@
+body
+{
+    margin:                     0;
+}
+
+.page--header
+{
+    background:                 #000000;
+    background:                 -moz-linear-gradient(top,  #000000 45%, #CC3837 81%, #ffffff 91%);
+    background:                 -webkit-gradient(linear, left top, left bottom, color-stop(45%,#000000), color-stop(81%,#CC3837), color-stop(91%,#ffffff));
+    background:                 -webkit-linear-gradient(top,  #000000 45%,#CC3837 81%,#ffffff 91%);
+    background:                 -o-linear-gradient(top,  #000000 45%,#CC3837 81%,#ffffff 91%);
+    background:                 -ms-linear-gradient(top,  #000000 45%,#CC3837 81%,#ffffff 91%);
+    background:                 linear-gradient(to bottom,  #000000 45%,#CC3837 81%,#ffffff 91%);
+
+
+    color:                      #eee;
+    width:                      100%;
+    position:                   absolute;
+    padding-bottom:             40px;
+    font-family:                Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+}
+
+.title
+{
+    margin:                     20px;
+}
+
+.title--link
+{   
+    display:                    inline-block;
+    width:                      30%;
+    text-align:                 center;
+    font-size:                  15px;
+    line-height:                30px;
+    height:                     30px;
+}
+
+.title--link a
+{
+    color:                      #575757;
+}
+
+.fork--git--wrapper
+{
+    position:                   absolute;
+    top:                        0;
+    right:                      0;
+    width:                      150px;
+    height:                     150px;
+    z-index:                    999;
+}
+
+.fork--git
+{
+    background:                 transparent url(/git.png) no-repeat center;
+    background-size:            contain;
+    width:                      150px;
+    height:                     150px;
+}
+
+.content
+{
+    position:                   absolute;
+    top:                        120px;
+}
+
+.content--header
+{
+    margin:                     20px;
+    font-family:                Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+    width:                      70%;
+    font-size:                  18px;
+    line-height:                23px;
+}
+
+.latest--additions--wrapper
+{
+    margin:                     20px;
+    font-family:                Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+    width:                      70%;
+    font-size:                  18px;
+    line-height:                23px;
+}
+
+.latest--additions__title
+{
+    margin-bottom:              5px;
+}
+
+.latest--additions
+{
+    border:                     1px solid #000;
+    border-radius:              3px;
+    background-color:           #EEEEEE;
+}
+
+.entry *
+{
+    display:                    inline-block;
+}
+
+.entry
+{
+    padding:                     5px;
+    font-size:                  13px;
+    line-height:                15px;
+}
+
+.entry:hover
+{
+    background-color:           #E6E6E6;
+}
+
+.entry--name 
+{
+    margin-right:               20px;
+    width:                      150px;
+}
+
+.entry--name  a
+{
+    color:                      #882627;
+}
+
+.entry--title
+{
+    overflow:                   hidden;
+}
+
+.entry--title a
+{
+    color:                      #000;
+}
+
+.entry--json a
+{
+    color:                      #501616;
+}
+
+

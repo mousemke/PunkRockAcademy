@@ -149,13 +149,19 @@ PunkRockAcademy.prototype.handleGet = function( request, response )
         }
         else
         {
-            dataType    = 'html';
             data        = this.static[ pathname ];
+
+            if ( data )
+            {
+                dataType    = data[1];
+                data        = data[0];
+            }
         }
 
         if ( !data )
         {
-            data = this.static.fourOhFour;
+            data = this.static.fourOhFour[0];
+            dataType    = 'html';
         }
 
         this.outputData( response, data, dataType );
@@ -362,7 +368,23 @@ PunkRockAcademy.prototype.loadData = function( filename, _callback, _import )
         data = JSON.stringify( data );
     }
 
-    dataType = ( dataType === 'json' ) ? 'application/json' : 'text/html';
+    switch ( dataType )
+    {
+        case 'json':
+            dataType = 'application/json';
+            break;
+        case 'js':
+            dataType = 'text/javascript;charset=utf-8';
+            break;
+        case 'css':
+            dataType = 'text/css';
+            break;
+        case 'png':
+            dataType = 'image/png';
+            break;
+        default:
+            dataType = 'text/html';
+    }
 
     response.writeHead( 200, {
                                 'Content-Type': dataType,
@@ -431,12 +453,17 @@ PunkRockAcademy.prototype.saveLibrary = function( newData )
 PunkRockAcademy.prototype.setStaticPages = function()
 {
     this.static = {
-        '/'             : this.fs.readFileSync( './resources/pages/index.html' ),
-        '/10'           : this.fs.readFileSync( './resources/pages/10.html' ),
-        '/submit'       : this.fs.readFileSync( './resources/pages/submit.html' ),
-        '/microbe.js'   : this.fs.readFileSync( './resources/scripts/microbe.js' ),
+        '/'             : [ this.fs.readFileSync( './resources/pages/index.html' ), 'html' ],
+        '/10'           : [ this.fs.readFileSync( './resources/pages/10.html' ), 'html' ],
+        '/submit'       : [ this.fs.readFileSync( './resources/pages/submit.html' ), 'html' ],
 
-        fourOhFour      : this.fs.readFileSync( './resources/pages/404.html' )
+        '/microbe.js'   : [ this.fs.readFileSync( './resources/scripts/microbe.js' ), 'js' ],
+
+        '/style.css'    : [ this.fs.readFileSync( './resources/css/style.css' ), 'css' ],
+
+        '/git.png'      : [ this.fs.readFileSync( './resources/images/git.png' ), 'png' ],
+
+        fourOhFour      : [ this.fs.readFileSync( './resources/pages/404.html' ), 'html' ],
     };
 };
 
