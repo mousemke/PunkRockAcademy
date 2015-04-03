@@ -34,18 +34,18 @@ live routes include (but as of now are mostly placeholders):
 
 + retrieve full library (json)
 ```
-/?lib
+/?lib=true
 ```
 
 + retrieve library sorted by album (json)
 ```
-/?album
+/?album=true
 ```
 
 
-+ retrieve library sorted by artist (json)
++ retrieve library sorted by band (json)
 ```
-/?artist
+/?band=true
 ```
 
 
