@@ -2,17 +2,58 @@
 Get your fix. Discover other people's classics.
 
 -
-So.  This repo is dedicated to everyone's Punk Rock upbringings.  It will collect punk albums of all flavors that have influenced people's life with the stories to go with them.  If you would like to contribute, just ask to be a contributer or simply submit a pull request.
+This repo is dedicated to everyone's Punk Rock upbringings.  It will collect punk albums of all flavors that have influenced people's life with the stories to go with them.  To contribute your 10 most influencial albums, go to http://punk.knoblau.ch/submit. If you would like contribute to the code itself, just ask to be a contributer or simply submit a pull request.
 
 -
-I have no idea where this is going, probably some frontend powered by node.js but i'm 100% open to other ideas/contributions.
+live routes include (but as of now are mostly placeholders):
+
++ home
+```
+/
+```
+
++ submit music
+```
+/submit
+```
+
++ description of the 10 influences project
+```
+/10
+```
+
++ see someone's 10 influences
+```
+/10/{any submitters name}
+```
+
++ see someone's 10 influences (json)
+```
+/10/{any submitters name}/json
+```
+
++ retrieve full library (json)
+```
+/?lib
+```
+
++ retrieve library sorted by album (json)
+```
+/?album
+```
+
+
++ retrieve library sorted by artist (json)
+```
+/?artist
+```
+
 
 -
 **start the server with**
 ```
 node server.js
 ```
-
 
 -
 **to import a JSON file into the library it should have following format:**

@@ -50,11 +50,11 @@ var PunkRockAcademy = function()
     {
         if ( request.method === 'POST' )
         {
-            self.handlePost( self, request, response );
+            self.handlePost( request, response );
         }
         else if ( request.method === 'GET' )
         {
-            self.handleGet( self, request, response );
+            self.handleGet( request, response );
         }
     } );
 
@@ -109,42 +109,69 @@ PunkRockAcademy.prototype.deleteFile = function( file )
 /**
  * sorts out GET requests
  *
- * @param  {obj}                    self                this
  * @param  {obj}                    request             HTTP request
  * @param  {obj}                    response            HTTP response
  *
  * @return {void}
  */
-PunkRockAcademy.prototype.handleGet = function( self, request, response )
+PunkRockAcademy.prototype.handleGet = function( request, response )
 {
-    var variables   = self.url.parse( request.url, true ).query;
-    var pathname    = self.url.parse( request.url ).pathname;
+    var variables       = this.url.parse( request.url, true ).query;
+    var pathnameSplit   = this.url.parse( request.url ).pathname.split( '/' );
 
-    var data = this.library;
-
-    if ( variables.band )
+    if ( pathnameSplit[ pathnameSplit.length - 1 ] === '' && pathnameSplit.length > 2 )    
     {
-        data = this.band;
+            pathnameSplit = pathnameSplit.slice( 0, pathnameSplit.length - 1 );   
     }
-    else if ( variables.album )
-    {
-        data = this.album;
-    }
+    var pathname = pathnameSplit.join( '/' )
 
-    self.outputData( response, data );
+    var dataType, data;
+
+    if ( pathnameSplit[1] === '10' && pathnameSplit[2] )
+    {
+        this.tenInfluences( pathnameSplit[2], pathnameSplit[3], response );
+    }
+    else
+    {
+        if ( JSON.stringify( variables ) !== '{}' )
+        {
+            dataType    = 'json';
+            data        = this.library;
+
+            if ( variables.band )
+            {
+                data = this.band;
+            }
+            else if ( variables.album )
+            {
+                data = this.album;
+            }
+        }
+        else
+        {
+            dataType    = 'html';
+            data        = this.static[ pathname ];
+        }
+
+        if ( !data )
+        {
+            data = this.static.fourOhFour;
+        }
+
+        this.outputData( response, data, dataType );
+    }
 };
 
 
 /**
  * sorts out POST requests
  *
- * @param  {obj}                    self                this
  * @param  {obj}                    request             HTTP request
  * @param  {obj}                    response            HTTP response
  *
  * @return {void}
  */
-PunkRockAcademy.prototype.handlePost = function( self, request, response )
+PunkRockAcademy.prototype.handlePost = function( request, response )
 {
     // var body = '';
 
@@ -194,6 +221,7 @@ PunkRockAcademy.prototype.ini = function()
     this.watchSockets();
 
     this.loadData( 'library', this._importJSON.bind( this ) );
+    this.setStaticPages();
 };
 
 
@@ -327,15 +355,17 @@ PunkRockAcademy.prototype.loadData = function( filename, _callback, _import )
  *
  * @return {void}
  */
- PunkRockAcademy.prototype.outputData = function( response, data )
+ PunkRockAcademy.prototype.outputData = function( response, data, dataType )
 {
-    if ( typeof data !== 'string' )
+    if ( typeof data !== 'string' && dataType === 'json' )
     {
         data = JSON.stringify( data );
     }
 
+    dataType = ( dataType === 'json' ) ? 'application/json' : 'text/html';
+
     response.writeHead( 200, {
-                                'Content-Type': 'application/json',
+                                'Content-Type': dataType,
                                 'Access-Control-Allow-Origin': '*'
                             } );
     response.write( data );
@@ -395,6 +425,31 @@ PunkRockAcademy.prototype.saveLibrary = function( newData )
         self.saveData( data, 'library.bak' );
         self.saveData( newData, 'library' );
     }, false );
+};
+
+
+PunkRockAcademy.prototype.setStaticPages = function()
+{
+    this.static = {
+        '/'             : this.fs.readFileSync( './resources/pages/index.html' ),
+        '/10'           : this.fs.readFileSync( './resources/pages/10.html' ),
+        '/submit'       : this.fs.readFileSync( './resources/pages/submit.html' ),
+        '/microbe.js'   : this.fs.readFileSync( './resources/scripts/microbe.js' ),
+
+        fourOhFour      : this.fs.readFileSync( './resources/pages/404.html' )
+    };
+};
+
+
+PunkRockAcademy.prototype.tenInfluences = function( name, type, response )
+{
+    var self = this;
+
+    this.fs.readFile( './lib/json/10/' + name + '.10influences.json', 'utf8', function( err, data )
+    {
+        var dataType = ( type === 'json' ) ? 'json' : 'html';
+        self.outputData( response, data, dataType );
+    } );
 };
 
 
